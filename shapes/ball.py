@@ -41,7 +41,7 @@ class Ball(Shape):
             # Set ball's position on the edge of the circle
             self.x = center_x + math.cos(angle) * (circle_radius - self.radius)
             self.y = center_y + math.sin(angle) * (circle_radius - self.radius)
-            self.x += 0.03  # For chaos theory
+            self.x += 0.04  # For chaos theory
 
             # Reflect the velocity based on the angle
             normal_x = math.cos(angle)
@@ -62,22 +62,27 @@ class Ball(Shape):
         else:
             return False
 
-    def draw_ball(self, screen):
+    def draw_ball(self, screen, outline_width, outline_color):
+        # Outline
+        pygame.draw.circle(screen, outline_color,
+                           (int(self.x), int(self.y)), self.radius + outline_width)
+        # Actual ball
         pygame.draw.circle(screen, self.color,
                            (int(self.x), int(self.y)), self.radius)
 
-    def draw_circle(self, screen, radius, color):
+    def draw_circle(self, screen, radius, color, circle_thickness):
         center_x, center_y = CIRCLE_WIDTH // 2, CIRCLE_HEIGHT // 2
         pygame.draw.circle(
-            screen, color, (center_x, center_y), radius, width=7)
+            screen, color, (center_x, center_y), radius, circle_thickness)
 
-    def draw_ball_ghost(self, screen, ghost_trails, trail_alpha):
+    def draw_ball_ghost(self, screen, ghost_trails, trail_alpha, trail_size):
         for i, ((x, y), color) in enumerate(ghost_trails):
             # Fade out effect: older trails are more transparent
-            alpha = trail_alpha - int(trail_alpha * (i / len(ghost_trails)))
+            alpha = trail_alpha
             ghost_color = (color[0], color[1], color[2], alpha)
             ghost_surface = pygame.Surface(
                 (2 * self.radius, 2 * self.radius), pygame.SRCALPHA)
             pygame.draw.circle(ghost_surface, ghost_color,
-                               (self.radius, self.radius), self.radius)
+                               (self.radius, self.radius), self.radius / trail_size)
+
             screen.blit(ghost_surface, (x - self.radius, y - self.radius))
